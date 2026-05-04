@@ -16,28 +16,36 @@ public class EmailService
 
     private async Task SendEmail(MimeMessage email)
     {
-        var smtpUser = _config["Smtp:User"];
-        var smtpPass = _config["Smtp:Pass"];
-        var fromEmail = _config["Smtp:From"];
+        try
+        {
+            var smtpUser = _config["Smtp:User"];
+            var smtpPass = _config["Smtp:Pass"];
+            var fromEmail = _config["Smtp:From"];
 
-        if (string.IsNullOrEmpty(smtpUser) || string.IsNullOrEmpty(smtpPass))
-            throw new Exception("SMTP config missing");
+            if (string.IsNullOrEmpty(smtpUser) || string.IsNullOrEmpty(smtpPass))
+                throw new Exception("SMTP config missing");
 
-        email.From.Clear();
-        email.From.Add(MailboxAddress.Parse(fromEmail ?? smtpUser));
+            email.From.Clear();
+            email.From.Add(MailboxAddress.Parse(fromEmail ?? smtpUser));
 
-        using var smtp = new SmtpClient();
+            using var smtp = new SmtpClient();
 
-        await smtp.ConnectAsync(
-            "smtp-relay.brevo.com",
-            587,
-            MailKit.Security.SecureSocketOptions.StartTls);
+            await smtp.ConnectAsync(
+                "smtp-relay.brevo.com",
+                587,
+                MailKit.Security.SecureSocketOptions.StartTls);
 
-        await smtp.AuthenticateAsync(smtpUser, smtpPass);
+            await smtp.AuthenticateAsync(smtpUser, smtpPass);
 
-        await smtp.SendAsync(email);
+            await smtp.SendAsync(email);
 
-        await smtp.DisconnectAsync(true);
+            await smtp.DisconnectAsync(true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("EMAIL ERROR: " + ex.Message);
+            throw;
+        }
     }
 
     public async Task SendBookingConfirmation(
