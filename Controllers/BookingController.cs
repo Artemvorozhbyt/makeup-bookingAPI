@@ -104,6 +104,33 @@ namespace MakeupBookingAPI.Controllers
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
 
+            try
+            {
+                Console.WriteLine("SENDING EMAIL...");
+
+                await _emailService.SendBookingConfirmation(
+                    dto.Email,
+                    dto.Name,
+                    service.Name,
+                    dto.Date
+                );
+
+                await _emailService.SendAdminNotification(
+                    dto.Name,
+                    dto.Email,
+                    dto.Phone,
+                    service.Name,
+                    dto.Date
+                );
+
+                Console.WriteLine("EMAIL SENT");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("EMAIL ERROR: " + ex.ToString());
+                throw;
+            }
+
             return Ok(booking);
         }
 
