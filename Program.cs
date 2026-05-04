@@ -57,7 +57,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // ===== EMAIL SERVICE =====
-builder.Services.AddScoped<EmailService>();
+builder.Services.AddHttpClient<EmailService>();
 
 // ===== JWT =====
 var jwtKey = builder.Configuration["Jwt:Key"];
