@@ -15,7 +15,7 @@ namespace MakeupBookingAPI.Controllers
         {
             _context = context;
         }
-        // ✅ Отримати всі послуги
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult GetAll()
@@ -23,7 +23,7 @@ namespace MakeupBookingAPI.Controllers
             var services = _context.Services.ToList();
             return Ok(services);
         }
-        // 👑 Додавання нової послуги (для адміністратора)
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public IActionResult Create([FromBody] Service service)
@@ -34,7 +34,7 @@ namespace MakeupBookingAPI.Controllers
             _context.SaveChanges();
             return Ok(service);
         }
-        // 👑 Видалення послуги
+
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)

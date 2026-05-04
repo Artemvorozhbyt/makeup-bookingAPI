@@ -39,7 +39,6 @@ namespace MakeupBookingAPI.Controllers
             new TimeSpan(18, 0, 0),
         };
 
-        // 📩 Cтворення бронювання
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateBookingDto dto)
         {
@@ -49,7 +48,7 @@ namespace MakeupBookingAPI.Controllers
             if (string.IsNullOrWhiteSpace(dto.Phone) || dto.Phone.Length < 9)
                 return BadRequest("Невірний номер телефону");
 
-            if (dto.Date < DateTime.Now) // 🔥 ЛОКАЛЬНИЙ час
+            if (dto.Date < DateTime.Now) 
                 return BadRequest("Дата не може бути в минулому");
 
             if (string.IsNullOrWhiteSpace(dto.Email) || !IsValidEmail(dto.Email))
@@ -59,13 +58,11 @@ namespace MakeupBookingAPI.Controllers
             if (service == null)
                 return BadRequest("Послуга не знайдена");
 
-            // ✅ ВАЖЛИВО: беремо локальний час ДО будь-яких конвертацій
             var localTime = dto.Date.TimeOfDay;
 
             if (!allowedSlots.Contains(localTime))
                 return BadRequest("Недоступний час");
 
-            // ✅ ТІЛЬКИ ТУТ переводимо в UTC
             var utcDate = DateTime.SpecifyKind(dto.Date, DateTimeKind.Local)
                                   .ToUniversalTime();
 
@@ -98,7 +95,7 @@ namespace MakeupBookingAPI.Controllers
                 Name = dto.Name,
                 Email = dto.Email,
                 Phone = dto.Phone,
-                Date = utcDate, // ✅ тільки UTC в БД
+                Date = utcDate, 
                 ServiceId = dto.ServiceId,
                 DurationMinutes = duration,
                 CreatedAt = DateTime.UtcNow
@@ -110,7 +107,6 @@ namespace MakeupBookingAPI.Controllers
             return Ok(booking);
         }
 
-        // 👑 Отримати всі бронювання (для адміністратора)
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public IActionResult GetAll()
@@ -123,7 +119,6 @@ namespace MakeupBookingAPI.Controllers
             return Ok(bookings);
         }
 
-        // ❌ Видалити бронювання
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
@@ -147,26 +142,22 @@ namespace MakeupBookingAPI.Controllers
             if (service == null)
                 return BadRequest("Service not found");
 
-            // 🔥 1. Працюємо в локальному часі
             var startLocal = parsedDate.Date;
             var endLocal = startLocal.AddDays(1);
 
-            // 🔥 2. Переводимо межі дня в UTC
             var startUtc = DateTime.SpecifyKind(startLocal, DateTimeKind.Local).ToUniversalTime();
             var endUtc = DateTime.SpecifyKind(endLocal, DateTimeKind.Local).ToUniversalTime();
 
-            // 🔥 3. Отримуємо бронювання
             var bookings = _context.Bookings
                 .Where(b => b.ServiceId == serviceId &&
                             b.Date >= startUtc && b.Date < endUtc)
                 .ToList();
 
-            // 🔥 4. Переводимо назад в локальний час для порівняння слотів
             var bookedSlots = bookings
                 .Select(b => b.Date.ToLocalTime().TimeOfDay)
                 .ToList();
 
-            // 🔥 5. Формуємо список доступних
+
             var available = allowedSlots
                 .Where(slot => !bookedSlots.Contains(slot))
                 .Select(t => t.ToString(@"hh\:mm"))
@@ -194,17 +185,17 @@ namespace MakeupBookingAPI.Controllers
 
                 var utcDate = localDate.ToUniversalTime();
 
-                var start = utcDate.Date;          // ✅ ВАЖЛИВО
+                var start = utcDate.Date;   
                 var end = start.AddDays(1);
 
                 var bookingsCount = _context.Bookings
                     .Where(b => b.ServiceId == serviceId &&
                                 b.Date >= start && b.Date < end)
-                    .Count(); // 🔥 без ToList()
+                    .Count(); 
 
                 result.Add(new
                 {
-                    date = localDate.ToString("yyyy-MM-dd"), // ✅ фронт працює з локальною датою
+                    date = localDate.ToString("yyyy-MM-dd"),
                     available = bookingsCount < allowedSlots.Count
                 });
             }

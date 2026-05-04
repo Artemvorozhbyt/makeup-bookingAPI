@@ -10,9 +10,11 @@ using System.Text;
 using MakeupBookingAPI.Models;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // ===== DATABASE =====
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -26,7 +28,33 @@ builder.Services.AddControllers();
 
 // ===== SWAGGER =====
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Введи токен: Bearer {токен}"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 // ===== EMAIL SERVICE =====
 builder.Services.AddScoped<EmailService>();
@@ -50,14 +78,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// ===== CORS (ОСЬ ГОЛОВНЕ ВИПРАВЛЕННЯ) =====
+
+// ===== CORS =====
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://127.0.0.1:5500")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+            "http://127.0.0.1:5500",
+            "https://luxury-makeup-atelier.netlify.app"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
@@ -70,7 +102,6 @@ using (var scope = app.Services.CreateScope())
 
     db.Database.Migrate();
 
-    // якщо сервісів ще нема — додаємо
     if (!db.Services.Any())
     {
         db.Services.AddRange(
@@ -84,15 +115,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ===== MIDDLEWARE =====
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-// ❗ ВАЖЛИВО: CORS ДО AUTH
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
