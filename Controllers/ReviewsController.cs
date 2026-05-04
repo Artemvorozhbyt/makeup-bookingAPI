@@ -38,5 +38,18 @@ namespace MakeupBookingAPI.Controllers
 
             return Ok(review);
         }
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var review = _context.Reviews.Find(id);
+
+            if (review == null)
+                return NotFound();
+
+            _context.Reviews.Remove(review);
+            _context.SaveChanges();
+
+            return Ok();
+        }
     }
 }
