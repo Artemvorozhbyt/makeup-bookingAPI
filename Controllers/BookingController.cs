@@ -108,20 +108,30 @@ namespace MakeupBookingAPI.Controllers
             {
                 Console.WriteLine("SENDING EMAIL...");
 
-                await _emailService.SendBookingConfirmation(
-                    dto.Email,
-                    dto.Name,
-                    service.Name,
-                    dto.Date
-                );
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _emailService.SendBookingConfirmation(
+                            booking.Email,
+                            booking.Name,
+                            service.Name,
+                            booking.Date.ToLocalTime()
+                        );
 
-                await _emailService.SendAdminNotification(
-                    dto.Name,
-                    dto.Email,
-                    dto.Phone,
-                    service.Name,
-                    dto.Date
-                );
+                        await _emailService.SendAdminNotification(
+                            booking.Name,
+                            booking.Email,
+                            booking.Phone,
+                            service.Name,
+                            booking.Date.ToLocalTime()
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("EMAIL BACKGROUND ERROR: " + ex.Message);
+                    }
+                });
 
                 Console.WriteLine("EMAIL SENT");
             }

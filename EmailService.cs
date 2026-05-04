@@ -61,7 +61,6 @@ public class EmailService
         catch (Exception ex)
         {
             Console.WriteLine("EMAIL ERROR: " + ex.ToString());
-            throw;
         }
     }
 
@@ -79,68 +78,68 @@ public class EmailService
         email.Body = new TextPart("html")
         {
             Text = $@"
-    <div style='font-family: ""Playfair Display"", serif; background:#f5f2ed; padding:40px;'>
+            <div style='font-family: ""Playfair Display"", serif; background:#f5f2ed; padding:40px;'>
 
-    <div style='max-width:600px; margin:auto; background:#ffffff; border-radius:16px; padding:40px; border:1px solid #e8dcc8;'>
+                    <div style='max-width:600px; margin:auto; background:#ffffff; border-radius:16px; padding:40px; border:1px solid #e8dcc8;'>
 
-        <!-- HEADER -->
-        <div style='text-align:center; margin-bottom:30px;'>
-            <h1 style='margin:0; font-size:28px; color:#c59d5f;'>Anna Rakhno</h1>
-            <div style='letter-spacing:2px; font-size:12px; color:#999; margin-top:8px;'>
-                LUXURY MAKEUP ATELIER
+                        <!-- HEADER -->
+                        <div style='text-align:center; margin-bottom:30px;'>
+                            <h1 style='margin:0; font-size:28px; color:#c59d5f;'>Anna Rakhno</h1>
+                        <div style='letter-spacing:2px; font-size:12px; color:#999; margin-top:8px;'>
+                     LUXURY MAKEUP ATELIER
+                    </div>
+                </div>
+
+                <hr style='border:none; border-top:1px solid #eee; margin:30px 0;'>
+
+                <!-- CONTENT -->
+                    <p style='font-size:16px;'>Hello, <b>{name}</b> ✨</p>
+
+                    <p style='font-size:15px; color:#444;'>
+                    Your appointment has been successfully reserved. We look forward to welcoming you.
+                    </p>
+
+                    <!-- CARD -->
+                <div style='background:#f3ede4; border-radius:12px; padding:20px; margin:25px 0;'>
+
+                    <p style='margin:8px 0;'><b>Service:</b> {service}</p>
+
+                    <p style='margin:8px 0;'>
+                    <b>Date:</b> {date.ToString("dd MMM yyyy HH:mm", new CultureInfo("en-GB"))}
+                    </p>
+
+                    <p style='margin:8px 0;'>
+                    <b>Location:</b><br>
+                    Adama Mickiewicza 18<br>
+                    Katowice
+                    </p>
+
+                </div>
+
+                    <p style='font-size:13px; color:#666;'>
+                    Please arrive on time for your appointment. If you need changes, reply to this email or contact us directly.
+                    </p>
+
+                    <!-- BUTTON -->
+                 <div style='text-align:center; margin:30px 0;'>
+                    <a href='https://instagram.com/a.podlenskih.mua'
+                    style='display:inline-block; padding:12px 24px; background:#c59d5f; color:#fff; border-radius:20px; text-decoration:none; font-size:14px;'>
+                    Instagram
+                    </a>
+                </div>
+
+                    <hr style='border:none; border-top:1px solid #eee; margin:30px 0;'>
+
+                    <!-- FOOTER -->
+                    <div style='text-align:center; font-size:12px; color:#888;'>
+                    Anna Rakhno Beauty Studio<br>
+                    Private appointments only • Katowice
+                </div>
+
+                </div>
+
             </div>
-        </div>
-
-        <hr style='border:none; border-top:1px solid #eee; margin:30px 0;'>
-
-        <!-- CONTENT -->
-        <p style='font-size:16px;'>Hello, <b>{name}</b> ✨</p>
-
-        <p style='font-size:15px; color:#444;'>
-            Your appointment has been successfully reserved. We look forward to welcoming you.
-        </p>
-
-        <!-- CARD -->
-        <div style='background:#f3ede4; border-radius:12px; padding:20px; margin:25px 0;'>
-
-            <p style='margin:8px 0;'><b>Service:</b> {service}</p>
-
-            <p style='margin:8px 0;'>
-                <b>Date:</b> {date.ToString("dd MMM yyyy HH:mm", new CultureInfo("en-GB"))}
-            </p>
-
-            <p style='margin:8px 0;'>
-                <b>Location:</b><br>
-                Adama Mickiewicza 18<br>
-                Katowice
-            </p>
-
-        </div>
-
-        <p style='font-size:13px; color:#666;'>
-            Please arrive on time for your appointment. If you need changes, reply to this email or contact us directly.
-        </p>
-
-        <!-- BUTTON -->
-        <div style='text-align:center; margin:30px 0;'>
-            <a href='https://instagram.com/a.podlenskih.mua'
-               style='display:inline-block; padding:12px 24px; background:#c59d5f; color:#fff; border-radius:20px; text-decoration:none; font-size:14px;'>
-               Instagram
-            </a>
-        </div>
-
-        <hr style='border:none; border-top:1px solid #eee; margin:30px 0;'>
-
-        <!-- FOOTER -->
-        <div style='text-align:center; font-size:12px; color:#888;'>
-            Anna Rakhno Beauty Studio<br>
-            Private appointments only • Katowice
-        </div>
-
-    </div>
-
-</div>
-"
+            "
         };
 
         await SendEmail(email);
