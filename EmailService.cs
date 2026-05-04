@@ -11,10 +11,10 @@ public class EmailService
     private readonly IConfiguration _config;
     private readonly HttpClient _http;
 
-    public EmailService(IConfiguration config)
+    public EmailService(IConfiguration config, HttpClient http)
     {
         _config = config;
-        _http = new HttpClient();
+        _http = http;
     }
 
     private async Task SendEmail(string toEmail, string toName, string subject, string html)
