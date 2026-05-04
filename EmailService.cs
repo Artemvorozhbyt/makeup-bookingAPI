@@ -21,29 +21,46 @@ public class EmailService
             var smtpUser = _config["Smtp:User"];
             var smtpPass = _config["Smtp:Pass"];
             var fromEmail = _config["Smtp:From"];
+            var host = _config["Smtp:Host"];
+            var portString = _config["Smtp:Port"];
 
-            if (string.IsNullOrEmpty(smtpUser) || string.IsNullOrEmpty(smtpPass))
-                throw new Exception("SMTP config missing");
+            // === VALIDATION ===
+            if (string.IsNullOrEmpty(smtpUser))
+                throw new Exception("SMTP user missing");
 
+            if (string.IsNullOrEmpty(smtpPass))
+                throw new Exception("SMTP password missing");
+
+            if (string.IsNullOrEmpty(host))
+                throw new Exception("SMTP host missing");
+
+            if (!int.TryParse(portString, out var port))
+                throw new Exception("SMTP port invalid");
+
+            // === FROM ===
             email.From.Clear();
             email.From.Add(MailboxAddress.Parse(fromEmail ?? smtpUser));
 
             using var smtp = new SmtpClient();
 
+            // === CONNECT ===
             await smtp.ConnectAsync(
-                "smtp-relay.brevo.com",
-                587,
+                host,
+                port,
                 MailKit.Security.SecureSocketOptions.StartTls);
 
+            // === AUTH ===
             await smtp.AuthenticateAsync(smtpUser, smtpPass);
 
+            // === SEND ===
             await smtp.SendAsync(email);
 
+            // === DISCONNECT ===
             await smtp.DisconnectAsync(true);
         }
         catch (Exception ex)
         {
-            Console.WriteLine("EMAIL ERROR: " + ex.Message);
+            Console.WriteLine("EMAIL ERROR: " + ex.ToString());
             throw;
         }
     }
